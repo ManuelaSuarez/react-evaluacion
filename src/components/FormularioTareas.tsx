@@ -1,29 +1,21 @@
-import React, { type Dispatch, useState, type SetStateAction } from "react";
-import TareaService from "../TareaService";
-import type { iTareaTypes } from "../tarea";
+import React, { useState } from "react";
+import { useAppDispatch } from "../hooks/redux";
+import { agregarTarea } from "../redux/tareaSlice";
+import "./FormularioTareas.css"
 
-interface iPropTypes {
-    setTareas: Dispatch<SetStateAction<iTareaTypes[]>>
-}
-
-const FormularioTareas: React.FC<iPropTypes> = ({setTareas}) => {
-   
+const FormularioTareas: React.FC = () => {
+    const dispatch = useAppDispatch()
     const [nuevoTextoTarea, setNuevoTextoTarea] = useState<string>("")
 
     const handleCrearTarea = () => {
-        if(nuevoTextoTarea.trim() != "") {
-            const nuevaTarea = TareaService.crearTarea(nuevoTextoTarea);
-            setTareas((listaDesactualizada) => [...listaDesactualizada, nuevaTarea]);
-            setNuevoTextoTarea("");
-        }
+        dispatch(agregarTarea(nuevoTextoTarea))
+        setNuevoTextoTarea("")
     }
     
     return (
-        <div>
-            <form action="submit">
-                <input type="text" value={nuevoTextoTarea} onChange={(e) => setNuevoTextoTarea(e.target.value)} autoFocus={true} placeholder="Agregar una nueva tarea" />
-                <button onClick={handleCrearTarea}>Crear</button>
-            </form>  
+        <div className="formulario_container">
+            <input type="text" value={nuevoTextoTarea} onChange={(e) => setNuevoTextoTarea(e.target.value)} autoFocus={true} placeholder="Agregar una nueva tarea" />
+            <button onClick={handleCrearTarea}>Agregar Tarea</button> 
         </div>
     )
 }

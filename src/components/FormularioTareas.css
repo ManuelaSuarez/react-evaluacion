@@ -1,0 +1,47 @@
+.formulario_container{
+  height: 100px;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  flex-direction: column;
+  margin-top: 20px;
+}
+
+.formulario_container > input , button {
+  outline:none;
+  border:none;
+  font-size: 1.4rem;
+  color:#000;
+}
+
+.formulario_container > input{
+  height: 5vh;
+  width: 80%;
+  max-width: 900px;
+  margin: 0 auto;
+  box-shadow: 1px 1px 6px -2px #000;
+  background: #F3F8FF;
+  font-family: 'Poppins', sans-serif;
+  text-align: center;
+  border-radius:50px ;
+}
+
+.formulario_container > input::placeholder{
+  font-size: 18px;
+  color:rgba(229, 229, 229, 0.907)
+}
+
+.formulario_container > button {
+  font-family: 'Roboto', sans-serif;
+  padding: 5px 10px;
+  background-color: #E5BEB5;
+  cursor: pointer;
+  font-weight: 500;
+  border-radius: 5px;
+  margin-top: 10px;
+  transition: all 0.5s ease-in-out;
+}
+
+.formulario_container > button:hover {
+  background-color: #c0978e;
+}

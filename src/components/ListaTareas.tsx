@@ -1,73 +1,62 @@
-import {useState} from 'react'
+import { useAppSelector, useAppDispatch } from '../hooks/redux.ts'
+import {
+    eliminarTarea,
+    iniciarEdicion,
+    actualizarTextoEditado,
+    actualizarEstadoEditado,
+    guardarEdicion
+} from "../redux/tareaSlice.ts"
 import type { iTareaTypes } from "../tarea.ts"
-import TareaService from "../TareaService"
 import FormularioTareas from './FormularioTareas.tsx'
-
+import "./ListaTareas.css"
+import { FaEdit, FaCheck } from "react-icons/fa"
+import { RiDeleteBin5Fill } from "react-icons/ri"
 
 const ListaTareas = () => {
-    // Estados
-    const [tareas, setTareas] = useState<iTareaTypes[]>(TareaService.leerTareas());
-    const [idEditado, setIdEditada] = useState<number | null>(null);
-    const [textoEditado, setTextoEditado] = useState<string>("");
-    const [estadoEditado, setEstadoEditado] = useState<iTareaTypes["estado"]>("En proceso...");
+    const { tareas, idEditado, textoEditado, estadoEditado } = useAppSelector((state) => state.tareas)
+    const dispatch = useAppDispatch()
 
-    // Handlers
     const handleEdicion = (id: number, texto: string, estado: iTareaTypes["estado"]) => {
-        setIdEditada(id);
-        setTextoEditado(texto);
-        setEstadoEditado(estado);
+        dispatch(iniciarEdicion({ id, texto, estado }))
     }
 
-    const handleGuardarEdicion = (id: number) => {
-        if(textoEditado.trim()!= "") {
-            const actualizarTarea = TareaService.editarTarea({
-                id,
-                texto: textoEditado,
-                estado: estadoEditado
-            });
-
-            setTareas((listaDesactualizada) => listaDesactualizada.map((t) => (t.id === id ? actualizarTarea : t)));
-
-            setIdEditada(null);
-            setTextoEditado("");
-            setEstadoEditado("En proceso...");
-        }
+    const handleGuardarEdicion = () => {
+        dispatch(guardarEdicion())
     }
 
     const handleEliminar = (id: number) => {
-        TareaService.borrarTarea(id);
-        setTareas((listaDesactualizada) => listaDesactualizada.filter((t) => t.id !== id))
+        dispatch(eliminarTarea(id))
     }
 
     return (
-        <div className='listaTareasContenedor'>
+        <div className='lista_container'>
             <div>
-                <h2>¿Desea agregar una nueva tarea?</h2>
-                <FormularioTareas setTareas={setTareas} />
+                <FormularioTareas />
             </div>
+            <div className='tareas'>
+                {tareas.map((t) => (
+                    <div className='items' key={t.id}>
+                        {idEditado == t.id ? (
+                            <div className='editando'>
+                                <input type="text" value={textoEditado} onChange={(e) => dispatch(actualizarTextoEditado(e.target.value))} autoFocus={true} />
+                                <select value={estadoEditado} onChange={(e) => dispatch(actualizarEstadoEditado(e.target.value as iTareaTypes["estado"]))}>
+                                    <option value="En proceso...">En proceso...</option>
+                                    <option value="Completada">Completada</option>
+                                </select>
+                                <button onClick={() => handleGuardarEdicion()}><FaCheck /></button>
+                            </div>
+                        ) : (
+                            <div className='noEditando'>
+                                <span>{t.texto}</span>
+                                <span>({t.estado})</span>
+                                <button onClick={() => handleEdicion(t.id, t.texto, t.estado)}><FaEdit /></button>
+                            </div>
+                        )}
+                        <button onClick={() => handleEliminar(t.id)}><RiDeleteBin5Fill /></button>
+                    </div>
+                ))}
 
-            {tareas.map((t) => (
-                <div className='itemTarea' key={t.id}>
-                    {idEditado == t.id ? (
-                        <div>
-                            <input type="text" value={textoEditado} onChange={(e) => setTextoEditado(e.target.value)} autoFocus={true} />
-                            <select value={estadoEditado} onChange={(e) => setEstadoEditado(e.target.value as iTareaTypes["estado"])}>
-                                <option value="En proceso...">En proceso...</option>
-                                <option value="Completada">Completada</option>
-                            </select>
-                            <button onClick={() => handleGuardarEdicion(t.id)}>Guardar</button>
-                        </div>
-                    ) : (
-                        <div>
-                            <span>{t.texto}</span>
-                            <span>({t.estado})</span>
-                            <button onClick={() => handleEdicion(t.id, t.texto, t.estado)}>Editar</button>
-                        </div>
-                    )}
-
-                    <button onClick={() => handleEliminar(t.id)}>Eliminar</button>
-                </div>
-            ))}
+            </div>
         </div>
     )
 }
